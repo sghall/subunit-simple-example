@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Subunit | WebGL Demos</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <script src="node_modules/three/build/three.js"></script>
+    <script src="node_modules/subunit/subunit.js"></script>
+    <script>
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 6000);
+      camera.position.z = 1000;
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild(renderer.domElement);
+      renderer.setClearColor(0x333333);
+
+      const light = new THREE.HemisphereLight('#fff', '#666', 1.5);
+      light.position.set(0, 1000, 0);
+      scene.add(light);
+
+      window.addEventListener('resize', onWindowResize, false);
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+      }
+
+      const rootNode = subunit.select(scene);
+      const container = rootNode.append('object');
+
+      const geometry = new THREE.BoxBufferGeometry(400, 400, 400);
+      const material = new THREE.MeshPhongMaterial({ color: 'blue' });
+
+      const boxes = container.selectAll('chart')
+        .data([1, 2, 3, 4, 5]).enter()
+        .append('mesh')
+        .attr('material', material)
+        .attr('geometry', geometry)
+        .attr('position', (d) => {
+          return { x: d * 500, y: 0, z: 0 };
+        });
+
+      const theta = 0.010;
+
+      function animate() {
+        rootNode.node().rotation.y += theta;
+
+        boxes.each(function (d, i) {
+          this.rotation.x += theta * ((i + 1) * 2);
+        });
+
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      }
+
+      animate();
+    </script>
+  </body>
+</html>
